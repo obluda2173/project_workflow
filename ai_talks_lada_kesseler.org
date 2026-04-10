@@ -1,0 +1,73 @@
+#+title: Ai Talks Lada Kesseler
+#+author: Erik An
+#+email: obluda2173@gmail.com
+#+date: <2026-04-10>
+#+lastmod: <2026-04-10 15:58>
+#+latex: \newpage
+#+latex_header: \setlength{\parindent}{0pt}
+#+latex_header: \setlength{\parskip}{1em}
+#+latex_header: \usepackage{amsmath}
+#+latex_header: \usepackage{amssymb}
+#+latex_header: \usepackage{amsthm}
+#+latex_header: \usepackage[margin=1in]{geometry}
+#+options: num:t
+#+startup: overview latexpreview inlineimages
+
+* Coding with AI — Patterns (Llewellyn Kesler)
+
+** Core constraint: LLMs can't learn from you
+- Weights are frozen, model is stateless
+- "Memory" in chat UIs is just context window concatenation
+- You can only *append* to context or *reset* it
+
+** Context degrades
+- Performance isn't uniform — starts good, weakens, then plummets
+- Happens well before hitting the token limit
+- Active context management is non-optional
+
+** Pattern 1 — Knowledge Documents
+Extract valuable discoveries into files /before/ resetting context.
+On reset: load file → clean context + retained knowledge.
+Stops you from being a "human copy-paste machine."
+
+** Pattern 2 — Ground Rules
+Files *always* loaded (=.claude/rules=, Windsurf rules).
+Only the most critical stuff: "prefer simple solutions," "warn me before I do something dumb."
+User-level and project-level.
+
+** Pattern 3 — Extract Knowledge
+Dirty context + good gems → ask agent to save to file.
+Same for modifying existing knowledge docs.
+
+** Anti-pattern — Distracted Agent
+One agent doing everything = diluted attention.
+Result: shallow focus or fixation on irrelevant details.
+Instructions like "warn me about bad practices" silently stop working. Examples:
+- Be very honest. Tell me something I need to know even if I don't want to hear it.
+- Be proactive and flag issues before they become problems.
+
+** Pattern 4 — Focused Agents
+Specialist agents in parallel. Example: dedicated "committer" agent.
+Same ground rules, but focused context → actually catches problems.
+Small focused agent >> large scattered agent.
+
+** Pattern 5 — Reference Docs
+Build a library of on-demand docs (style guides, test plans, scratch pads).
+Pull in as needed — granular control over context occupation.
+
+** Pattern 6 — Knowledge Composition
+Split reference docs by concern.
+Same logic as not writing giant functions: one file = one pull-in = better focus.
+
+** Pattern 7 — Semantic Zoom
+Text is elastic. Zoom out: "TLDR / high-level." Zoom in: "tell me more."
+Use cases:
+- *New codebases* — high-level architecture, ASCII diagrams
+- *Debugging blind* — high-level explanation → spot nonsense fast → peel layers
+- *Tests* — approval tests formatted for at-a-glance scanning
+- *Doc maintenance* — keep succinct, delete mercilessly, temporary vs permanent
+
+** Pattern 8 — Noise Cancellation
+LLMs are verbose by default. Put "be succinct" in ground rules.
+Match detail level to curiosity level.
+One noisy AI is bad; four devs × noisy AI = chaos.
