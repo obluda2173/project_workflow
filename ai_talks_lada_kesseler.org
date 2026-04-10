@@ -2,7 +2,7 @@
 #+author: Erik An
 #+email: obluda2173@gmail.com
 #+date: <2026-04-10>
-#+lastmod: <2026-04-10 19:22>
+#+lastmod: <2026-04-10 20:08>
 #+latex: \newpage
 #+latex_header: \setlength{\parindent}{0pt}
 #+latex_header: \setlength{\parskip}{1em}
@@ -132,3 +132,63 @@ The agent values recent instructions more. Exploit this:
 - *To-do lists* — written checklist >> verbal dump. Focuses the agent.
 - *Instruction sandwich* — wrap implementation steps with what you care about (e.g. "run tests" before and after).
 - *Reminder hooks* — automate nagging. Example: hook that prepends your top 5 rules to every prompt. Only method that reliably enforces "ask questions one at a time."
+** Anti-pattern 20 — Silent Misalignment
+AI has a hidden "mental model" + compliance bias = silently does the wrong thing without asking.
+Example: told it to level two UI panels. It agreed, failed repeatedly. Asked it to color what it thought the "header" was — completely different DOM understanding than yours.
+Never said "I don't understand what you mean." Just kept trying.
+
+** Pattern 21 — Active Partner
+Suppress default compliance. Ground rules:
+- Tell me something I need to know even if I don't want to hear it.
+- Push back when something seems wrong. Don't agree with mistakes.
+- Ask questions if something's not clear, especially before making a choice.
+- Show a specific emoji (e.g. ⚠️) when flagging a potential error — confirms the rule is active.
+Reinforce with prompts: "what do you really think?", "do you have any questions?", "is everything clear?"
+Don't say "give me 3 questions" — arbitrary caps suppress what might be the most important question, or force invented ones.
+
+** Pattern 22 — Check Alignment
+Before implementation: "show me what you're about to do."
+Two benefits: catches misunderstandings early + seeing a plan triggers your own opinions about what to change.
+Cheaper to correct a plan than to undo wrong implementation.
+
+** Pattern 23 — Context Markers
+Start replies with a starter character (emoji). Confirms rules are loaded.
+- Disappears → context is degraded, time to reset.
+- Stack emojis per specialist agent (committer gets its own).
+- Process files get their own marker — confirms the agent is following the process, not just winging it.
+- Can attach to individual instructions in ad-hoc prompts to verify they're being followed.
+Loop-to-loop: tell it at end of a big chunk to reread core rules. Costs context, reinforces rules. Still undecided on tradeoff.
+
+** Anti-pattern 24 — Answer Injection
+Your question smuggles in an assumed answer shape, cutting off AI's breadth.
+"Which fancy restaurant should I book?" → gets restaurant. Never told you a picnic would be better.
+"Can you send a message to another Claude Code?" → researched inter-process comms, said no. But the actual situation (two tmux panes) had a trivial AppleScript solution it never offered — because the question pre-narrowed the search space.
+Fix: describe *what you're trying to do*, not *how you think it should be done*.
+
+** Pattern 25 — Reverse Direction
+Stop treating the agent as an order taker. Instead of dictating, ask it to suggest.
+"Rename this file" → "suggest names for this file."
+You see options, recognize what you like, get ideas you wouldn't have had.
+Leverages AI's breadth — the strongest thing it has. Augments you instead of reducing you to a dispatcher.
+
+** Pattern 26 — Text Native
+Text is AI's strongest modality. Stay in text as long as possible.
+ASCII as lightweight visual medium — like markdown is to code, ASCII is to images.
+Example workflow (UI redesign at hackathon):
+1. Feed hand-drawn mockup images → ask AI to convert to ASCII
+2. Edit the ASCII (lightweight whiteboard you both share)
+3. Ask AI to describe the ASCII in prose → now you have a spec
+4. Feed current code state → ask AI to describe it the same way
+5. Diff the two descriptions → to-do list writes itself
+6. Implement from the to-do list → worked first try
+Took a giant leap by staying in text and letting AI bridge representations.
+
+** Takeaways (speaker's summary)
+- LLMs can't learn → you build the memory system (files, reference library)
+- Focus is scarce → small agents beat big agents
+- Text is elastic → zoom in/out, stay text-native, keep docs scannable
+- Non-determinism → protect (checkpoints) or exploit (parallel runs)
+- Don't expect perfect recall → let it experiment, save verified knowledge
+- Tricky instructions → hooks and reminders, not prompting harder
+- Mental model is hidden + compliance bias → actively fight silent agreement
+- Breadth is AI's strongest asset → stop narrowing with pre-shaped questions
