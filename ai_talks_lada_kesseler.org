@@ -2,7 +2,7 @@
 #+author: Erik An
 #+email: obluda2173@gmail.com
 #+date: <2026-04-10>
-#+lastmod: <2026-04-10 15:58>
+#+lastmod: <2026-04-10 19:22>
 #+latex: \newpage
 #+latex_header: \setlength{\parindent}{0pt}
 #+latex_header: \setlength{\parskip}{1em}
@@ -71,3 +71,64 @@ Use cases:
 LLMs are verbose by default. Put "be succinct" in ground rules.
 Match detail level to curiosity level.
 One noisy AI is bad; four devs × noisy AI = chaos.
+
+** Pattern 11 — Knowledge Checkpoint
+Before telling the agent to implement, save the plan to a file and commit.
+If implementation fails, rollback costs minutes, not the 30min you spent explaining.
+Protects your most valuable asset: time spent talking to it.
+Fight the default — Claude will try to implement immediately ("Labrador puppy"). Interrupt it: "no, save first."
+
+** Pattern 12 — Parallel Implementations
+Roll of a dice → roll five dice.
+From a checkpoint, fork into multiple branches (=git worktree=), open separate agents, let them run in parallel.
+- Trade tokens for your waiting time
+- Pick the best result, or cherry-pick across implementations ("I like this layout + those buttons")
+- Combine outputs into one solution better than any single attempt
+
+** Pattern 13 — Offload Determinism
+Don't use the agent for repeatable deterministic tasks.
+Example: instead of "take a screenshot via puppeteer MCP" (unreliable), have it *write a script* that does it.
+Now you own a deterministic tool. Agent can still call it, but the brittle part is gone.
+
+** Anti-pattern 14 — Perfect Recall Fallacy
+Trained on the internet ≠ remembers the internet. Don't expect library-level detail.
+Code is self-verifiable — run it. If you trust output without running, that's on you.
+
+** Pattern 15 — Playgrounds
+When stuck debugging from UI level, pull back. Have the agent write isolated dirty code to explore the problem.
+Example: chess library silently required a king on the board — unit test surfaced it instantly.
+Add a ground rule: "when stuck, experiment in a scratch directory ("playground" in gitignored)."
+Extract findings into reference docs → build a library of verified knowledge.
+
+** Pattern 16 — Invalidated Leaps
+AI makes unvalidated assumptions mid-implementation — same bug as a human coding 3 hours without running.
+When stuck: slow it down, tell it to validate each assumption.
+*Predictive TDD* works especially well here:
+- Predict outcome → run → surprise = broken mental model
+- Works on the agent too — snaps it out of loops
+- Extract your TDD process into a reference doc, reuse everywhere
+
+** Pattern 17 — Chain of Small Steps
+AI fails under complexity. You manage the decomposition, not the agent.
+Example (version number display):
+1. Hardcode a version variable, display it → trivial
+2. Write a script that increments that variable → trivial
+3. Wire it into a git hook → trivial
+Each step: focused agent, one concern, knowledge checkpoint before next step.
+Combines: chain of small steps + offload determinism + focused agent + knowledge checkpoint.
+
+** Tricky instructions — fighting agent training
+Some behaviors are baked into weights (e.g. code comments, Whisper hallucinating "like and subscribe" on silence).
+You cannot prompt these out. Filter or force them out instead.
+
+** Pattern 18 — Hooks (Claude Code)
+Deterministic injection points in the agentic loop.
+- Hook into =first_message=, =edit=, =conversation_start=, etc.
+- Example: Python hook on =edit= event detects new comments via tree-sitter → screams at agent → agent removes them
+- Reliable where prompting fails
+
+** Pattern 19 — Exploit Recency Bias
+The agent values recent instructions more. Exploit this:
+- *To-do lists* — written checklist >> verbal dump. Focuses the agent.
+- *Instruction sandwich* — wrap implementation steps with what you care about (e.g. "run tests" before and after).
+- *Reminder hooks* — automate nagging. Example: hook that prepends your top 5 rules to every prompt. Only method that reliably enforces "ask questions one at a time."
